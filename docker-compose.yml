@@ -8,10 +8,11 @@ services:
     environment:
       - API_PORT=3000
       - CLAUDE_BIN=claude
-      - CLAUDE_PROJECT_DIR=/app
+      # Agent workspace inside the container
+      - CLAUDE_PROJECT_DIR=/app/src/claude
       - API_BASE=http://localhost:3000
     volumes:
-      # Persist auth token across restarts
+      # Persist Claude auth across restarts
       - claude_auth:/root/.claude
     restart: unless-stopped
 

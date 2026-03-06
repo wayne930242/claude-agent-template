@@ -3,10 +3,7 @@
  * SessionStart Hook
  *
  * Runs every time a Claude Code session begins.
- * Output (stdout) is injected into Claude's context.
- * Use this to provide Claude with relevant session info.
- *
- * Hook event data: none (no stdin for SessionStart)
+ * Write to stdout — output is injected into Claude's context.
  *
  * Docs: https://docs.anthropic.com/en/docs/claude-code/hooks
  */
@@ -24,8 +21,8 @@ const timeStr = now.toLocaleString("en-US", {
 
 console.log(`[Session] Started: ${timeStr}`);
 
-// TODO: Add anything useful Claude should know at the start of each session.
-// For example:
-//   - Current git branch
-//   - Project status from an API
-//   - Pending tasks from a database
+// TODO: Add anything useful Claude should know at session start.
+// Examples:
+//   - Current git branch: Bun.$`git branch --show-current`
+//   - Pending items from a database
+//   - System status from an API

@@ -2,8 +2,8 @@
   "mcpServers": {
     "my-agent": {
       "type": "stdio",
-      "command": "bun",
-      "args": ["run", "src/mcp/server.ts"]
+      "command": "bash",
+      "args": ["start-mcp.sh"]
     }
   }
 }

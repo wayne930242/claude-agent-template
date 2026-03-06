@@ -11,12 +11,13 @@ export const config = {
   },
   claude: {
     bin: process.env.CLAUDE_BIN || "claude",
-    projectDir: process.env.CLAUDE_PROJECT_DIR || ".",
+    // Agent workspace: where Claude Code runs (reads CLAUDE.md, hooks, .mcp.json)
+    projectDir: process.env.CLAUDE_PROJECT_DIR || "src/claude",
   },
 } as const;
 
 export function validateConfig(): void {
-  // Add your own validation here
   console.log("[Config] API port:", config.api.port);
   console.log("[Config] Claude bin:", config.claude.bin);
+  console.log("[Config] Agent workspace:", config.claude.projectDir);
 }

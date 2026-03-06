@@ -3,21 +3,10 @@
     "allow": [
       "Bash(bun run:*)",
       "Bash(bun install:*)",
+      "Bash(docker build:*)",
+      "Bash(docker compose:*)",
       "Bash(curl http://localhost:*)"
     ],
     "deny": []
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "hooks": ["bun hooks/on-session-start.ts"]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "*",
-        "hooks": ["bun hooks/pre-tool-use.ts"]
-      }
-    ]
   }
 }

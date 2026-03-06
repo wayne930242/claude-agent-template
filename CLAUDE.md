@@ -1,56 +1,45 @@
-# My Claude Code Agent
+# Claude Code Agent Template — Developer Guide
 
-> Edit this file to define your agent's behavior and project context.
+> This file is for Claude Code when you are **developing this bot project**.
+> The agent's own constitution lives in `src/claude/CLAUDE.md`.
 
 <law>
-**Law 1: Communication**
-- Be concise and actionable
-- Respond in the same language as the user
+**Law 1: Code Quality**
+- Write clean TypeScript with strict types (no `any`)
+- Keep functions under 50 lines
+- Use `bun` instead of `node`/`npm`
 
 **Law 2: Safety**
-- Always ask before destructive operations (delete, overwrite, rm -rf)
-- Never commit secrets or credentials
+- Ask before destructive operations (delete, overwrite)
+- Never commit `.env` or secrets
 
-**Law 3: Code Quality**
-- Write clean, readable code
-- Prefer simple solutions over clever ones
-- Use TypeScript strict mode
+**Law 3: Architecture**
+- Bot source code → `src/`
+- Agent workspace (what the bot runs Claude in) → `src/claude/`
+- MCP tools → `src/mcp/tools/`
 </law>
 
-## Project Overview
-
-<!-- Describe what your agent does -->
-
-## Architecture
+## Project Structure
 
 ```
-src/
-├── index.ts          # Entry point — starts the API server
-├── config.ts         # Environment config
-├── claude/
-│   └── client.ts     # Headless Claude runner (claude -p)
-├── api/
-│   └── server.ts     # HTTP + WebSocket server
-└── mcp/
-    ├── server.ts      # MCP server (stdio)
-    └── tools/
-        └── hello.ts   # Example MCP tool — replace with your own
+src/claude/        ← Agent workspace (CLAUDE_PROJECT_DIR)
+  CLAUDE.md        ← Agent's constitution — edit this to change behavior
+  .claude/         ← Agent's hooks and permissions
+  hooks/           ← Agent's lifecycle hooks
+  .mcp.json        ← MCP server config for the agent
+
+src/mcp/           ← MCP server source code
+  server.ts
+  tools/hello.ts   ← Add your tools here
+
+src/api/server.ts  ← HTTP + WebSocket server
+src/claude/client.ts ← Headless Claude runner
 ```
 
-## Common Commands
+## Common Dev Tasks
 
 ```bash
-# Start the bot (HTTP + WebSocket)
-bun run dev
-
-# Test the API
-curl http://localhost:3000/health
-curl -X POST http://localhost:3000/api/chat -H "Content-Type: application/json" -d '{"message":"hello"}'
-
-# Test MCP server directly
-bun run mcp
+bun run dev         # Start the bot locally
+bun run mcp         # Test the MCP server standalone
+docker compose up   # Run in Docker
 ```
-
-## Adding MCP Tools
-
-Edit `src/mcp/tools/` to add new tools. Each tool file should export a `register*Tools(server)` function and be imported in `src/mcp/server.ts`.
