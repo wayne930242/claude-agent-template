@@ -1,0 +1,19 @@
+services:
+  bot:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - API_PORT=3000
+      - CLAUDE_BIN=claude
+      - CLAUDE_PROJECT_DIR=/app
+      - API_BASE=http://localhost:3000
+    volumes:
+      # Persist auth token across restarts
+      - claude_auth:/root/.claude
+    restart: unless-stopped
+
+volumes:
+  claude_auth:
