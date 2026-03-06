@@ -1,0 +1,21 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - API_PORT=3000
+      - CLAUDE_BIN=claude
+      - CLAUDE_PROJECT_DIR=/app/src/claude
+      - API_BASE=http://localhost:3000
+    volumes:
+      # Live reload: local src/ overrides the container's src/
+      - ./src:/app/src
+      - claude_auth:/root/.claude
+
+volumes:
+  claude_auth:
