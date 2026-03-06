@@ -8,5 +8,19 @@
       "Bash(curl http://localhost:*)"
     ],
     "deny": []
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/typecheck.py",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
   }
 }
