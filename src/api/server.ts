@@ -2,6 +2,7 @@
  * HTTP + WebSocket API Server
  *
  * Provides:
+ *   GET  /               → Web UI
  *   GET  /health         → health check
  *   POST /api/chat       → one-shot chat (non-streaming)
  *   WS   /ws             → streaming chat
@@ -13,13 +14,21 @@
  * WebSocket message format (server → client):
  *   { "type": "chat:start" }
  *   { "type": "chat:text", "content": "..." }    ← streaming text
+ *   { "type": "chat:thinking", "content": "..." }  ← thinking process
+ *   { "type": "chat:tool_use", "id": "...", "name": "...", "input": "..." }  ← tool call
+ *   { "type": "chat:tool_result", "id": "...", "content": "..." }            ← tool result
  *   { "type": "chat:done" }
  *   { "type": "chat:error", "error": "..." }
  */
 
 import type { ServerWebSocket } from "bun";
+import { resolve } from "node:path";
 import { config } from "../config";
 import { streamClaude } from "../claude/client";
+
+// ── Static files ─────────────────────────────────────────────────────────────
+
+const webDir = resolve(import.meta.dir, "../web");
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
@@ -64,6 +73,12 @@ export function startApiServer(port = config.api.port) {
 
       if (method === "OPTIONS") {
         return new Response(null, { status: 204, headers: cors });
+      }
+
+      // ── Web UI ──────────────────────────────────────────────────────────────
+      if (path === "/" && method === "GET") {
+        const file = Bun.file(resolve(webDir, "index.html"));
+        return new Response(file, { headers: { "Content-Type": "text/html", ...cors } });
       }
 
       // ── Health ──────────────────────────────────────────────────────────────
@@ -134,6 +149,21 @@ export function startApiServer(port = config.api.port) {
             for await (const event of streamClaude(msg.content, { signal: controller.signal })) {
               if (event.type === "text") {
                 ws.send(JSON.stringify({ type: "chat:text", content: event.content }));
+              } else if (event.type === "thinking") {
+                ws.send(JSON.stringify({ type: "chat:thinking", content: event.content }));
+              } else if (event.type === "tool_use") {
+                ws.send(JSON.stringify({
+                  type: "chat:tool_use",
+                  id: event.toolId,
+                  name: event.toolName,
+                  input: event.toolInput,
+                }));
+              } else if (event.type === "tool_result") {
+                ws.send(JSON.stringify({
+                  type: "chat:tool_result",
+                  id: event.toolId,
+                  content: event.content,
+                }));
               } else if (event.type === "error") {
                 ws.send(JSON.stringify({ type: "chat:error", error: event.content }));
                 return;
