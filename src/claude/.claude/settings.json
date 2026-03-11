@@ -14,6 +14,11 @@
         "matcher": "*",
         "hooks": ["bun hooks/pre-tool-use.ts"]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": ["bun hooks/on-stop.ts"]
+      }
     ]
   }
 }
