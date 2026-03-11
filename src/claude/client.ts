@@ -10,8 +10,11 @@ import { resolve } from "node:path";
 import { config } from "../config";
 
 export interface StreamEvent {
-  type: "thinking" | "text" | "done" | "error";
+  type: "thinking" | "text" | "tool_use" | "tool_result" | "done" | "error";
   content: string;
+  toolId?: string;
+  toolName?: string;
+  toolInput?: string;
 }
 
 interface ClaudeOptions {
@@ -96,6 +99,24 @@ export async function* streamClaude(
               } else if (block.type === "text") {
                 lastText = block.text;
                 yield { type: "text", content: block.text };
+              } else if (block.type === "tool_use") {
+                yield {
+                  type: "tool_use",
+                  content: "",
+                  toolId: block.id,
+                  toolName: block.name,
+                  toolInput: JSON.stringify(block.input ?? {}),
+                };
+              } else if (block.type === "tool_result") {
+                const text = (block.content ?? [])
+                  .filter((c: { type: string }) => c.type === "text")
+                  .map((c: { text: string }) => c.text)
+                  .join("\n");
+                yield {
+                  type: "tool_result",
+                  content: text,
+                  toolId: block.tool_use_id,
+                };
               }
             }
           } else if (event.type === "result") {
