@@ -10,9 +10,10 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen">
-      <header className="flex items-center gap-3 px-6 py-4 border-b border-[hsl(var(--border))]">
+      <header className="flex items-center gap-3 px-6 py-3 border-b border-border/50 bg-card/80 backdrop-blur-sm">
+        <h1 className="text-base font-semibold tracking-tight">Claude Agent</h1>
+        <div className="flex-1" />
         <ConnectionStatus connected={isConnected} />
-        <h1 className="text-lg font-semibold">Claude Agent</h1>
       </header>
       <ChatMessages messages={messages} />
       <ChatInput

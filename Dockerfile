@@ -21,6 +21,10 @@ RUN cd src/web && bun install --frozen-lockfile && bun run build
 # Entrypoint: configures Claude auth on startup
 RUN chmod +x docker-entrypoint.sh
 
+# Create non-root user (--dangerously-skip-permissions rejects root)
+RUN useradd -m -s /bin/bash claude && chown -R claude:claude /app
+USER claude
+
 EXPOSE 3000
 
 ENTRYPOINT ["./docker-entrypoint.sh"]

@@ -13,7 +13,7 @@ services:
       - API_BASE=http://localhost:3000
     volumes:
       # Persist Claude auth across restarts
-      - claude_auth:/root/.claude
+      - claude_auth:/home/claude/.claude
     restart: unless-stopped
 
 volumes:

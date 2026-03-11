@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Brain } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -18,15 +18,16 @@ export function ThinkingBlock({ content, streaming }: ThinkingBlockProps) {
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger className="flex items-center gap-1.5 text-sm text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors">
+      <CollapsibleTrigger className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer group">
         <ChevronRight
-          className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-90" : ""}`}
+          className={`h-3 w-3 transition-transform duration-200 ${open ? "rotate-90" : ""}`}
         />
+        <Brain className="h-3 w-3" />
         <span className={streaming ? "animate-pulse" : ""}>
           {streaming ? "Thinking..." : "Thought process"}
         </span>
       </CollapsibleTrigger>
-      <CollapsibleContent className="mt-2 pl-5 text-sm text-[hsl(var(--muted-foreground))] whitespace-pre-wrap">
+      <CollapsibleContent className="mt-1.5 ml-7 text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed border-l-2 border-border pl-3">
         {content}
       </CollapsibleContent>
     </Collapsible>

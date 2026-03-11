@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronRight, Loader2, CheckCircle2, XCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ChevronRight, Loader2, CheckCircle2, XCircle, Wrench } from "lucide-react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -27,34 +26,35 @@ function formatJson(str: string): string {
 export function ToolUseBlock({ name, input, status, result }: ToolUseBlockProps) {
   const [open, setOpen] = useState(false);
 
-  const StatusIcon = {
-    running: <Loader2 className="h-3.5 w-3.5 animate-spin" />,
-    done: <CheckCircle2 className="h-3.5 w-3.5 text-green-400" />,
-    error: <XCircle className="h-3.5 w-3.5 text-red-400" />,
+  const statusIcon = {
+    running: <Loader2 className="h-3 w-3 animate-spin text-primary" />,
+    done: <CheckCircle2 className="h-3 w-3 text-primary" />,
+    error: <XCircle className="h-3 w-3 text-destructive" />,
   }[status];
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger className="flex items-center gap-2 text-sm hover:text-[hsl(var(--foreground))] transition-colors">
+      <CollapsibleTrigger className="flex items-center gap-2 text-xs hover:text-foreground transition-colors cursor-pointer group">
         <ChevronRight
-          className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-90" : ""}`}
+          className={`h-3 w-3 transition-transform duration-200 text-muted-foreground ${open ? "rotate-90" : ""}`}
         />
-        {StatusIcon}
-        <Badge variant="secondary" className="font-mono text-xs">
+        {statusIcon}
+        <Wrench className="h-3 w-3 text-muted-foreground" />
+        <code className="font-mono text-xs text-muted-foreground group-hover:text-foreground transition-colors">
           {name}
-        </Badge>
+        </code>
       </CollapsibleTrigger>
-      <CollapsibleContent className="mt-2 pl-5 space-y-2">
+      <CollapsibleContent className="mt-1.5 ml-7 space-y-2">
         <div>
-          <div className="text-xs text-[hsl(var(--muted-foreground))] mb-1">Input</div>
-          <pre className="text-xs bg-[hsl(var(--secondary))] rounded p-2 overflow-x-auto">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-medium">Input</div>
+          <pre className="text-xs bg-background border border-border rounded-lg p-3 overflow-x-auto font-mono leading-relaxed">
             {formatJson(input)}
           </pre>
         </div>
         {result !== undefined && (
           <div>
-            <div className="text-xs text-[hsl(var(--muted-foreground))] mb-1">Result</div>
-            <pre className="text-xs bg-[hsl(var(--secondary))] rounded p-2 overflow-x-auto whitespace-pre-wrap">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-medium">Result</div>
+            <pre className="text-xs bg-background border border-border rounded-lg p-3 overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">
               {result}
             </pre>
           </div>

@@ -15,7 +15,7 @@ services:
     volumes:
       # Live reload: local src/ overrides the container's src/
       - ./src:/app/src
-      - claude_auth:/root/.claude
+      - claude_auth:/home/claude/.claude
 
 volumes:
   claude_auth:

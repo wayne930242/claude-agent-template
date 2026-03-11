@@ -1,18 +1,18 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-
 interface ConnectionStatusProps {
   connected: boolean;
 }
 
 export function ConnectionStatus({ connected }: ConnectionStatusProps) {
   return (
-    <Badge variant={connected ? "default" : "destructive"} className="gap-1.5">
+    <div className="flex items-center gap-2 text-xs text-muted-foreground">
       <span
-        className={`h-2 w-2 rounded-full ${connected ? "bg-green-400" : "bg-red-400"}`}
+        className={`h-2 w-2 rounded-full transition-colors ${
+          connected ? "bg-primary shadow-[0_0_6px_var(--color-primary)]" : "bg-destructive"
+        }`}
       />
       {connected ? "Connected" : "Disconnected"}
-    </Badge>
+    </div>
   );
 }

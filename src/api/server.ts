@@ -45,6 +45,7 @@ function isAuthorized(req: Request): boolean {
 interface WsData {
   id: string;
   abortController: AbortController | null;
+  conversationId: string | null;
 }
 
 // ── Server ────────────────────────────────────────────────────────────────────
@@ -93,7 +94,7 @@ export function startApiServer(port = config.api.port) {
       if (path === "/ws") {
         if (!isAuthorized(req)) return new Response("Unauthorized", { status: 401 });
         const upgraded = server.upgrade(req, {
-          data: { id: crypto.randomUUID(), abortController: null },
+          data: { id: crypto.randomUUID(), abortController: null, conversationId: null },
         });
         if (upgraded) return undefined;
         return new Response("WebSocket upgrade failed", { status: 400 });
@@ -149,7 +150,12 @@ export function startApiServer(port = config.api.port) {
           ws.send(JSON.stringify({ type: "chat:start" }));
 
           try {
-            for await (const event of streamClaude(msg.content, { signal: controller.signal })) {
+            const claudeOpts = {
+              signal: controller.signal,
+              sessionId: ws.data.id,
+              resumeConversationId: ws.data.conversationId ?? undefined,
+            };
+            for await (const event of streamClaude(msg.content, claudeOpts)) {
               if (event.type === "text") {
                 ws.send(JSON.stringify({ type: "chat:text", content: event.content }));
               } else if (event.type === "thinking") {
@@ -167,6 +173,8 @@ export function startApiServer(port = config.api.port) {
                   id: event.toolId,
                   content: event.content,
                 }));
+              } else if (event.type === "done" && event.conversationId) {
+                ws.data.conversationId = event.conversationId;
               } else if (event.type === "error") {
                 ws.send(JSON.stringify({ type: "chat:error", error: event.content }));
                 return;

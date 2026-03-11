@@ -15,15 +15,17 @@ export interface StreamEvent {
   toolId?: string;
   toolName?: string;
   toolInput?: string;
+  /** Conversation ID returned by Claude (available on "done" events) */
+  conversationId?: string;
 }
 
 interface ClaudeOptions {
-  /** Previous conversation to include as context */
-  conversationHistory?: string;
   /** Signal to abort the Claude process */
   signal?: AbortSignal;
   /** Session ID passed to hooks via env */
   sessionId?: string;
+  /** Resume a previous conversation by ID */
+  resumeConversationId?: string;
 }
 
 /**
@@ -38,31 +40,31 @@ export async function* streamClaude(
   prompt: string,
   options?: ClaudeOptions,
 ): AsyncGenerator<StreamEvent> {
-  let fullPrompt = prompt;
-
-  if (options?.conversationHistory) {
-    fullPrompt = `[Previous conversation]\n${options.conversationHistory}\n\n[Current message]\n${prompt}`;
-  }
-
   const projectDir = resolve(process.cwd(), config.claude.projectDir);
   const sessionId = options?.sessionId ?? crypto.randomUUID();
 
+  const cmd = [config.claude.bin];
+  if (options?.resumeConversationId) {
+    cmd.push("--resume", options.resumeConversationId, "-p", prompt);
+  } else {
+    cmd.push("-p", prompt);
+  }
+  cmd.push(
+    "--dangerously-skip-permissions",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+  );
+
   const proc = spawn({
-    cmd: [
-      config.claude.bin,
-      "-p",
-      fullPrompt,
-      "--dangerously-skip-permissions",
-      "--output-format",
-      "stream-json",
-      "--verbose",
-    ],
+    cmd,
     cwd: projectDir,
     stdout: "pipe",
     stderr: "pipe",
     env: {
       ...process.env,
       CLAUDE_SESSION_ID: sessionId,
+      CLAUDECODE: "", // Allow nested Claude spawning
     },
   });
 
@@ -74,6 +76,15 @@ export async function* streamClaude(
   const decoder = new TextDecoder();
   let buffer = "";
   let lastText = "";
+
+  // Log stderr for debugging
+  (async () => {
+    const stderrDecoder = new TextDecoder();
+    for await (const chunk of proc.stderr) {
+      const text = stderrDecoder.decode(chunk, { stream: true });
+      if (text.trim()) console.error("[Claude stderr]", text.trim());
+    }
+  })().catch(() => {});
 
   try {
     for await (const chunk of proc.stdout) {
@@ -120,7 +131,11 @@ export async function* streamClaude(
               }
             }
           } else if (event.type === "result") {
-            yield { type: "done", content: event.result ?? lastText };
+            yield {
+              type: "done",
+              content: event.result ?? lastText,
+              conversationId: event.session_id ?? event.conversation_id,
+            };
             return;
           }
         } catch {
