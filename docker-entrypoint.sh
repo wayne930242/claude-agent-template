@@ -14,4 +14,12 @@ else
   echo "[Auth] Then add the token to your .env file."
 fi
 
+# Build frontend if out/ doesn't exist (e.g. after volume mount in dev mode)
+if [ ! -d "/app/src/web/out" ] && [ -f "/app/src/web/package.json" ]; then
+  echo "[Web] Building frontend..."
+  cd /app/src/web && bun install --frozen-lockfile && bun run build
+  cd /app
+  echo "[Web] Frontend built"
+fi
+
 exec "$@"

@@ -15,6 +15,9 @@ RUN bun install --frozen-lockfile
 # Copy project files
 COPY . .
 
+# Install frontend dependencies and build static output
+RUN cd src/web && bun install --frozen-lockfile && bun run build
+
 # Entrypoint: configures Claude auth on startup
 RUN chmod +x docker-entrypoint.sh
 
