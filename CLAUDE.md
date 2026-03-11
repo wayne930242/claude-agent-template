@@ -43,15 +43,26 @@ src/
   mcp/
     server.ts              ← MCP server entry
     tools/hello.ts         ← Example tool — add new tools here
-  web/                     ← Web UI placeholder (empty, for future frontend)
+  web/                     ← Next.js chat UI (static export)
+    package.json           ← Frontend dependencies (next, react, shadcn)
+    app/                   ← Next.js app router
+    components/            ← Chat UI components
+    components/ui/         ← shadcn primitives
+    hooks/use-websocket.ts ← WebSocket connection hook
+    lib/types.ts           ← Shared message types
+    out/                   ← Built static files (served by API server)
 ```
 
 ## Quick Reference
 
 ```bash
 # Development
-bun run dev           # Watch mode (auto-restart)
+bun run dev           # Watch mode — API server (auto-restart)
+bun run web:dev       # Next.js dev server (port 3001)
 bun run typecheck     # Type check (no emit)
+
+# Build frontend
+bun run web:build     # Build Next.js → src/web/out/
 
 # Testing
 bun run mcp           # Test MCP server standalone
@@ -60,6 +71,7 @@ curl http://localhost:3000/health  # Check API health
 # Docker
 docker compose up     # Run in Docker
 docker compose up --build  # Rebuild and run
+docker compose -f docker-compose.dev.yml up  # Dev mode (hot reload)
 
 # Agent workspace
 CLAUDE_PROJECT_DIR=src/claude  # Where the agent runs
