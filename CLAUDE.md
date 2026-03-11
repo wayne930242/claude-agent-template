@@ -57,8 +57,9 @@ src/
 
 ```bash
 # Development
-bun run dev           # Watch mode — API server (auto-restart)
-bun run web:dev       # Next.js dev server (port 3001)
+bun run dev           # API server (3000) + Next.js dev (3001) concurrently
+bun run dev:api       # API server only (watch mode)
+bun run web:dev       # Next.js dev server only (port 3001)
 bun run typecheck     # Type check (no emit)
 
 # Build frontend
