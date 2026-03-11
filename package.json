@@ -7,7 +7,9 @@
     "dev": "bun run --watch src/index.ts",
     "start": "bun run src/index.ts",
     "mcp": "bun run src/mcp/server.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "web:dev": "cd src/web && bun run dev",
+    "web:build": "cd src/web && bun run build"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.1",

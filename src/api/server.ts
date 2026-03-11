@@ -28,7 +28,7 @@ import { streamClaude } from "../claude/client";
 
 // ── Static files ─────────────────────────────────────────────────────────────
 
-const webDir = resolve(import.meta.dir, "../web");
+const webDir = resolve(import.meta.dir, "../web/out");
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
@@ -75,10 +75,13 @@ export function startApiServer(port = config.api.port) {
         return new Response(null, { status: 204, headers: cors });
       }
 
-      // ── Web UI ──────────────────────────────────────────────────────────────
-      if (path === "/" && method === "GET") {
-        const file = Bun.file(resolve(webDir, "index.html"));
-        return new Response(file, { headers: { "Content-Type": "text/html", ...cors } });
+      // ── Web UI (static) ───────────────────────────────────────────────────
+      if (method === "GET" && !path.startsWith("/api") && path !== "/ws" && path !== "/health") {
+        const filePath = path === "/" ? "index.html" : path.slice(1);
+        const file = Bun.file(resolve(webDir, filePath));
+        if (await file.exists()) {
+          return new Response(file, { headers: cors });
+        }
       }
 
       // ── Health ──────────────────────────────────────────────────────────────
